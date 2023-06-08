@@ -20,8 +20,19 @@ theorem sin_sq_minus_sq (A B : ℝ) : sin (A + B) * sin (A - B) = sin (A)*sin (A
     rw [cos_sq', cos_sq']
     ring_nf
 
-theorem tan_add (A B: ℝ) : tan (A + B) = (tan A + tan B)/((1: ℝ) - tan A * tan B) := by
-    sorry
+
+theorem tan_add (A B: ℝ) (ha: cos A ≠ 0) (hb: cos B ≠ 0): tan (A + B) = (tan A + tan B)/((1: ℝ) - tan A * tan B) := by
+    simp [tan_eq_sin_div_cos]
+    rw [sin_add, cos_add]
+    -- rw [calc
+    --         (sin A / cos A + sin B / cos B) / (1 - sin A / cos A * (sin B / cos B)) = (sin A / cos A + sin B / cos B) / (1 - sin A / cos A * (sin B / cos B)) * 1 := by ring_nf
+    --         _ = (sin A / cos A + sin B / cos B) / (1 - sin A / cos A * (sin B / cos B)) * ((cos A * cos B) / (cos A * cos B)) := by rw [←div_self (mul_ne_zero ha hb)]
+    --         _ = (sin A / cos A + sin B / cos B) * (cos A * cos B) / ((1 - sin A / cos A * (sin B / cos B)) * (cos A * cos B)) := by rw [div_mul_div_comm]
+    --         _ = (((sin A / cos A) * cos A) * cos B + ((sin B / cos B) *  cos B) * cos A) / ((1 - sin A / cos A  * cos A * ((sin B / cos B) * cos B))) := by sorry
+    --     ]
+    field_simp
+    ring
+    
 
 
 theorem tri_tan_sum_eq_mul (A B C : ℝ) (h: A + B + C = π) (ha: cos A ≠ 0) (hb: cos B ≠ 0) (hc: cos C ≠ 0):
@@ -35,7 +46,7 @@ theorem tri_tan_sum_eq_mul (A B C : ℝ) (h: A + B + C = π) (ha: cos A ≠ 0) (
     have s2 := 
         calc
             tan C = - tan (A + B) := by rw [s1, tan_pi_sub]
-            _     = - ((tan A + tan B)/((1: ℝ) - tan A * tan B)) := by rw [tan_add]
+            _     = - ((tan A + tan B)/((1: ℝ) - tan A * tan B)) := by rw [tan_add _ _ ha hb]
     
     have s3 : tan C * ((1: ℝ) - tan A * tan B) = - (tan A + tan B) := by
         rw [s2, neg_mul ((tan A + tan B) / (1 - tan A * tan B)) (1 - tan A * tan B)]
