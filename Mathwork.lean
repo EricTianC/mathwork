@@ -7,21 +7,22 @@ open Real
 -- example (A: ℝ) : sin (A)*sin (A) = 1 - cos (A) *cos (A) := by
 --     library_search
 
-example (a b c : ℕ) (h: a - b = c): a = b + c := by
-    apply_fun λ x: ℕ => x + b at h
+
+example (a b c : ℤ) (h: a - b = c): a = b + c := by
+    apply_fun λ x: ℤ => x + b at h
     ring_nf at h
-    apply Eq.symm
-    rw [←h, sub_eq_add_neg]
+    assumption
+
 
 theorem sin_sq_minus_sq (A B : ℝ) : sin (A + B) * sin (A - B) = sin (A)*sin (A) - sin (B)*sin (B) := by
     rw [sin_add, sin_sub]
     ring_nf
-    apply Eq.symm
     rw [cos_sq', cos_sq']
     ring_nf
 
 theorem tan_add (A B: ℝ) : tan (A + B) = (tan A + tan B)/((1: ℝ) - tan A * tan B) := by
     sorry
+
 
 theorem tri_tan_sum_eq_mul (A B C : ℝ) (h: A + B + C = π) (ha: cos A ≠ 0) (hb: cos B ≠ 0) (hc: cos C ≠ 0):
     tan A + tan B + tan C = tan A * tan B * tan C := by
@@ -40,6 +41,26 @@ theorem tri_tan_sum_eq_mul (A B C : ℝ) (h: A + B + C = π) (ha: cos A ≠ 0) (
         rw [s2, neg_mul ((tan A + tan B) / (1 - tan A * tan B)) (1 - tan A * tan B)]
         rw [mul_comm_div, div_self]
         simp
-        sorry
+        apply_fun λ x: ℝ => x * cos A * cos B
+        ring_nf
+        repeat rw [tan_eq_sin_div_cos]
+        ring_nf
+        rw [calc
+            sin A * cos A * (cos A)⁻¹  * sin B * cos B * (cos B)⁻¹ = sin A * (cos A * (cos A)⁻¹)  * sin B * (cos B * (cos B)⁻¹) := by ring_nf 
+            _ = sin A * 1 * sin B * 1 := by rw [mul_inv_cancel ha, mul_inv_cancel hb],
+            calc
+            -(sin A * 1 * sin B * 1) + cos A * cos B = cos A * cos B - sin A * sin B := by ring_nf,
+            ←cos_add
+            ]
+        apply_fun λ x: ℝ => - cos x at s1
+        rw [cos_pi_sub] at s1
+        simp at s1
+        rw [←s1, neg_ne_zero]
+        assumption
     ring_nf at s3
-    generalize_proofs
+    apply_fun λ x: ℝ => x + tan C * tan A * tan B + tan A + tan B at s3
+    ring_nf at s3
+    rw [calc tan C + tan A + tan B = tan A + tan B + tan C := by ring_nf] at s3
+    rw [s3]
+    ring_nf
+    exact trivial
